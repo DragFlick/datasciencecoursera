@@ -16,3 +16,6 @@
 
 ### The script then imports the heading data under the variable STUDY_DATA_COLUMN_HEADINGS and renames the column headings for master data set (STUDY_DATA) 
 
+### The script then extracts the data for the Mean and Standard deviations and stores is under variable MEAN_AND_SD_STUDY_DATA
+
+### The script then reads the activity labels and assign them to the activity codes . The data STUDY_DATA_WITH_ACTIVITY_LABELS stores the data with activity labels
