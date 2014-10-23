@@ -19,3 +19,5 @@
 ### The script then extracts the data for the Mean and Standard deviations and stores is under variable MEAN_AND_SD_STUDY_DATA
 
 ### The script then reads the activity labels and assign them to the activity codes . The data STUDY_DATA_WITH_ACTIVITY_LABELS stores the data with activity labels
+
+### The script finally creates a query to extract the mean of all columns grouping them by Activity and Test Subject and store it under the data set TINY_DATA
