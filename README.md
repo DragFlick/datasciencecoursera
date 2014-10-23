@@ -9,12 +9,9 @@
 ## 5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
 
-### The script first sets the working directory as specified by the user as the Present Working directory where the 
-###data set is present . It then sets the filepath to initialize the various files . Once done , it initialized the 
-###variable (STUDY_DATA ) which holds the consolidated data for training and test data. It then imports the training and 
-###testing data and consolidates it under the STUDY_DATA variable.
+### The script first sets the working directory as specified by the user as the Present Working directory where the data set is present . It then sets the filepath to initialize the various files . Once done , it initialized the variable (STUDY_DATA ) which holds the consolidated data for training and test data. It then imports the training and testing data and consolidates it under the STUDY_DATA variable.
 
-### The script then imports the heading data under the variable STUDY_DATA_COLUMN_HEADINGS and renames the column headings for master data set (STUDY_DATA) 
+### The script then imports the heading data under the variable STUDY_DATA_COLUMN_HEADINGS. It replaces hyphens(-),comma(,),brackets (()) and period(.) with underscore(_) and  then renames the column headings for master data set (STUDY_DATA) 
 
 ### The script then extracts the data for the Mean and Standard deviations and stores is under variable MEAN_AND_SD_STUDY_DATA
 
