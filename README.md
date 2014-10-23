@@ -14,4 +14,5 @@
 ###variable (STUDY_DATA ) which holds the consolidated data for training and test data. It then imports the training and 
 ###testing data and consolidates it under the STUDY_DATA variable.
 
-### The script then imports the heading data 
+### The script then imports the heading data under the variable STUDY_DATA_COLUMN_HEADINGS and renames the column headings for master data set (STUDY_DATA) 
+
