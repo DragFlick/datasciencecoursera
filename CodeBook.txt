@@ -1,0 +1,38 @@
+
+        
+
+ABSOLUTE_FILEPATH - Variable is used to store the absolute filepath to the "UCI HAR Dataset" dataset. The filepath
+can be used to set the working directory of the session . Otherwise user may set the working directory of the session
+to the "UCI HAR Dataset"  and can comment the section set between the hash tag lines 
+        
+TEST_DATA_FILEPATH  - Stores the file path to the test data
+TRAINING_DATA_FILEPATH  - Stores the filepath to the training data
+TEST_SUBJECT_FILEPATH - Stores the filepath to the test subject data 
+TRAINING_SUBJECT_FILEPATH - Stores the file path to the training data
+TEST_ACTIVITY_FILEPATH - Stores the file path to the test activity data
+TRAINING_ACTIVITY_FILEPATH - Stores the file path to training activity filepath
+FEATURE_DETAILS_FILEPATH - Stores feature details data 
+ACTIVITY_LABELS_FILEPATH - Stores data regardinga activity labels 
+
+STUDY_DATA - Contains the final consolidated test and training data
+STUDY_DATA_COLUMN_HEADINGS - Contains the final coulumn headings for the variable STUDY_DATA   
+MEAN_AND_SD_STUDY_DATA - Contains the mean and standard deviation data 
+STUDY_DATA_WITH_ACTIVITY_LABELS - Contains Study data with activity labels.
+TIDY_DATA - Contains the final mean data for all the columns grouped according to the Activity and Subject 
+
+
+           
+       
+       
+        
+        
+
+        
+     
+      
+        
+        
+        TIDY_DATA <- sqldf(query)
+        
+
+
