@@ -1,5 +1,5 @@
 
-        
+        VARIABLES USED IN RUN ANALYSIS SCRIPT
 
 ABSOLUTE_FILEPATH - Variable is used to store the absolute filepath to the "UCI HAR Dataset" dataset. The filepath
 can be used to set the working directory of the session . Otherwise user may set the working directory of the session
