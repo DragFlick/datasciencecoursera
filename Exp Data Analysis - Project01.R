@@ -43,18 +43,32 @@ study_data <- study_data[,-c(2:3)]
 
 # PLOTTING GRAPHS ON THE DATA SET study_data
 
+<<<<<<< HEAD
+=======
+######################################################################
+>>>>>>> 2ebfbb3773aea0a923f8a3c4f186e401f7128669
 
 ## Plot 1
 
 hist(as.numeric(study_data$global_active_power),xlab = "Global Active Power (Kilowatts)",ylab = "Frequency",col = "red",main = "Global Active Power")
 
 
+<<<<<<< HEAD
+=======
+###################################################################
+
+>>>>>>> 2ebfbb3773aea0a923f8a3c4f186e401f7128669
 ## Plot 2
 
 
 plot(as.POSIXlt(study_data$datetime),study_data$global_active_power,xlab = "",ylab = "Global Active Power (kilowatts)" , type = "n")
 lines(as.POSIXlt(study_data$datetime),study_data$global_active_power,col = "red")
 
+<<<<<<< HEAD
+=======
+##################################################################
+
+>>>>>>> 2ebfbb3773aea0a923f8a3c4f186e401f7128669
 ## Plot 3
 
 plot(study_data$datetime,study_data$sub_metering_1,xlab = "",ylab = "Energy Sub Metering", type = "n")
@@ -63,6 +77,10 @@ lines(study_data$datetime,study_data$sub_metering_2,col = "red")
 lines(study_data$datetime,study_data$sub_metering_3,col = "blue")
 legend("topright",lty = 1,lwd = 2,legend = c("Sub_Metering_1","Sub_Metering_2","Sub_Metering_3"),col = c("black","red","blue"))
 
+<<<<<<< HEAD
+=======
+#################################################################
+>>>>>>> 2ebfbb3773aea0a923f8a3c4f186e401f7128669
 
 ## Plot 4
 
@@ -86,7 +104,11 @@ plot(study_data$datetime,study_data$global_reactive_power,xlab = "datetime",ylab
 lines(study_data$datetime,study_data$global_reactive_power,col = "black")
 
 
+<<<<<<< HEAD
 
+=======
+###########################################################
+>>>>>>> 2ebfbb3773aea0a923f8a3c4f186e401f7128669
 
 
 

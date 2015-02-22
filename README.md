@@ -3,6 +3,7 @@
 ## The run_analysis.R performs the following activities 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Merges the training and the test sets to create one data set.
 ## Extracts only the measurements on the mean and standard deviation for each measurement. 
 ## Uses descriptive activity names to name the activities in the data set
@@ -11,6 +12,8 @@
 
 ## ##
 =======
+=======
+>>>>>>> 2ebfbb3773aea0a923f8a3c4f186e401f7128669
 ## 1. Merges the training and the test sets to create one data set.
 ## 2. Extracts only the measurements on the mean and standard deviation for each measurement. 
 ## 3. Uses descriptive activity names to name the activities in the data set
@@ -27,4 +30,7 @@
 ### The script then reads the activity labels and assign them to the activity codes . The data STUDY_DATA_WITH_ACTIVITY_LABELS stores the data with activity labels
 
 ### The script finally creates a query to extract the mean of all columns grouping them by Activity and Test Subject and store it under the data set TINY_DATA
+<<<<<<< HEAD
 >>>>>>> 3bfa40c9281886fa3be2a397485959fab3b76985
+=======
+>>>>>>> 2ebfbb3773aea0a923f8a3c4f186e401f7128669
