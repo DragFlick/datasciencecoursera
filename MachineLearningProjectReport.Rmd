@@ -58,7 +58,7 @@ rm("inTrain")
 
 Now creating a Transform function to manage the tranformations that the Training and Testing data may have to undergo. 
 
-```{r,echo=FALSE }
+```{r}
 
 Transform <- function(DataSet)
         {

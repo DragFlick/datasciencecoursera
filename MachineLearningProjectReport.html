@@ -86,6 +86,16 @@ Training &lt;- ExpData[inTrain , ]
 Testing &lt;- ExpData[-inTrain , ]
 rm(&quot;inTrain&quot;)</code></pre>
 <p>Now creating a Transform function to manage the tranformations that the Training and Testing data may have to undergo.</p>
+<pre class="r"><code>Transform &lt;- function(DataSet)
+        {
+                DataSet[is.na(DataSet)] &lt;- 0
+                s_data &lt;- subset(DataSet , 
+                                 select = -c(X,user_name,raw_timestamp_part_1,raw_timestamp_part_2,cvtd_timestamp))
+                class &lt;- s_data$classe
+                s_data &lt;- subset(s_data , select = -classe)
+                data &lt;- cbind(class , s_data)
+                return(data)
+        }</code></pre>
 <p>Once we have the Transformed Training and Testing data , identifying the near zero covariates for both Training data and removing them from both Training and Testing dataset.</p>
 <pre class="r"><code>Training &lt;- Transform(Training)
 Testing  &lt;- Transform(Testing)
