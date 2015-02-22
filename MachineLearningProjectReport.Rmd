@@ -148,6 +148,6 @@ Validation <- read.csv("./pml-testing.csv")
 ValResult <- predict(ModelFit1 , Validation)
 ```
 
-Submitted the valdiation results in the necessary format.
+Submitted the results of Validation data set .
 
 
