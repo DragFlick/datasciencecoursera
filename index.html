@@ -56,7 +56,7 @@
 
 <p>The data for analysis is provided for by</p>
 
-<p>Ugulino, W.; Cardador, D.; Vega, K.; Velloso, E.; Milidiu, R.; Fuks, H. Wearable Computing: Accelerometers’ Data Classification of Body Postures and Movements. Proceedings of 21st Brazilian Symposium on Artificial Intelligence. Advances in Artificial Intelligence - SBIA 2012. In: Lecture Notes in Computer Science. , pp. 52-61. Curitiba, PR: Springer Berlin / Heidelberg, 2012. ISBN 978-3-642-34458-9. DOI: 10.1007/978-3-642-34459-6_6.</p>
+<p>Ugulino, W.; Cardador, D.; Vega, K.; Velloso, E.; Milidiu, R.; Fuks, H. Wearable Computing: Accelerometers’ Data Classification of Body Postures and Movements. Proceedings of 21st Brazilian Symposium on Artificial Intelligence. Advances in Artificial Intelligence - SBIA 2012. In: Lecture Notes in Computer Science. , pp. 52-61. Curitiba, PR: Springer Berlin / Heidelberg, 2012. ISBN 978-3-642-34458-9. DOI: 10.1007/978-3-642-34459-6_6.</p>
 
 <p>Loading the necessary libraries and the analysis data . Once the Experiment data is loaded dividing the data into Training and Testing samples .</p>
 
@@ -70,6 +70,17 @@ Testing &lt;- ExpData[-inTrain , ]
 rm("inTrain")</code></pre>
 
 <p>Now creating a Transform function to manage the tranformations that the Training and Testing data may have to undergo.</p>
+
+<pre><code>Transform &lt;- function(DataSet)
+        {
+                DataSet[is.na(DataSet)] &lt;- 0
+                s_data &lt;- subset(DataSet , 
+                                 select = -c(X,user_name,raw_timestamp_part_1,raw_timestamp_part_2,cvtd_timestamp))
+                class &lt;- s_data$classe
+                s_data &lt;- subset(s_data , select = -classe)
+                data &lt;- cbind(class , s_data)
+                return(data)
+        }</code></pre>
 
 <p>Once we have the Transformed Training and Testing data , identifying the near zero covariates for both Training data and removing them from both Training and Testing dataset.</p>
 
