@@ -1,0 +1,153 @@
+---
+title: "Practical Machine Learning - Final Project Report"
+author: "Chitresh Pandey"
+output: html_document
+---
+The Project Involves analyzing the Data collected in a controlled experient on 6 subjects. The activity involved here is "Unilateral Dumbbell Biceps Curl" . The data was collected for 5 different methods for the activity denoted as ( A , B , C , D ,E) . Out of 5, only A is the correct method . 
+
+A - Exactly as per specification
+
+B - Throwing the elbows to the front
+
+C - Lifting the dumbbell only halfway
+
+D - Lowering the dumbbell only halfway
+
+E - Throwing the hips to the front
+
+
+Now, here we can pose 2 questions
+
+Q1 . Can we classify that a person is doing the "Unilateral Dumbbell Biceps Curl"  correctly or incorrectly through  a given dataset of specific measurements ? 
+
+Q2 . If the person is classified as doing the "Unilateral Dumbbell Biceps Curl" incorrectly , can we further classify him/her into B,C,D or E ? 
+
+
+The data for analysis is provided for by 
+
+Ugulino, W.; Cardador, D.; Vega, K.; Velloso, E.; Milidiu, R.; Fuks, H. Wearable Computing: Accelerometers' Data Classification of Body Postures and Movements. Proceedings of 21st Brazilian Symposium on Artificial Intelligence. Advances in Artificial Intelligence - SBIA 2012. In: Lecture Notes in Computer Science. , pp. 52-61. Curitiba, PR: Springer Berlin / Heidelberg, 2012. ISBN 978-3-642-34458-9. DOI: 10.1007/978-3-642-34459-6_6. 
+
+
+Loading the necessary libraries and the analysis data . Once the Experiment data is loaded dividing the data into Training and Testing samples . 
+
+```{r,echo=FALSE}
+setwd("C:/CHITRESH - DUMPS/COURSEERA - DATA SCIENTIST TOOLBOX/MACHINE LEARNING")
+```
+
+
+```{r,echo=FALSE,message=FALSE}
+# Loading necessary libraries
+library(ggplot2)
+library(caret)
+library(randomForest)
+library(mboost)
+library(splines)
+```
+
+Loading the Experiment data and slicing it into Testing and Training Sets
+```{r}
+ 
+ExpData <- read.csv("./pml-training.csv") 
+set.seed(4868086)
+inTrain <- createDataPartition( y = ExpData$classe , p = 0.7 , list = FALSE)
+Training <- ExpData[inTrain , ]
+Testing <- ExpData[-inTrain , ]
+rm("inTrain")
+
+```
+
+Now creating a Transform function to manage the tranformations that the Training and Testing data may have to undergo. 
+
+```{r,echo=FALSE }
+
+Transform <- function(DataSet)
+        {
+                DataSet[is.na(DataSet)] <- 0
+                s_data <- subset(DataSet , 
+                                 select = -c(X,user_name,raw_timestamp_part_1,raw_timestamp_part_2,cvtd_timestamp))
+                class <- s_data$classe
+                s_data <- subset(s_data , select = -classe)
+                data <- cbind(class , s_data)
+                return(data)
+        }
+```
+
+Once we have the Transformed Training and Testing data , identifying the near zero covariates for both Training data and removing them from both Training and Testing dataset.
+
+
+```{r}
+Training <- Transform(Training)
+Testing  <- Transform(Testing)
+
+# Identifying the Near Zero CoVariates in Training set and removing them from both Training and Testing data
+
+NZV <- nearZeroVar(Training , saveMetrics=TRUE)
+Training <- Training[ ,!NZV$nzv]
+Testing  <- Testing[  ,!NZV$nzv]
+```
+
+Now , preparing my model on the training data  . 
+
+```{r,echo=FALSE,message=FALSE}
+
+ModelFit <- randomForest(class ~ . , 
+             data = Training[floor(runif(1000 , min = 1 , max = dim(Training)[1])) , ])
+```
+
+
+```{r}
+ModelFit1 <- update(ModelFit , data = Training) # Random Forest 
+
+```
+
+
+```{r, echo=FALSE,message=FALSE}
+ModelFit <-   train(class ~ . , 
+                    method  = "gbm",
+                    data = Training[floor(runif(1000 , min = 1 , max = dim(Training)[1])) ,],
+                    verbose = FALSE)
+```
+
+```{r}
+ModelFit2 <- update(ModelFit ,method  = "gbm",data = Training,verbose = FALSE) # Boosting
+
+```
+
+
+Following are the statistics for both the Model Fits . 
+
+```{r}
+print(ModelFit1) # Random Forest 
+print(ModelFit2) # Boosting 
+
+```
+
+Now predicting the output for the Testing data sets from the Models 
+
+```{r}
+
+ResultSet1 <- predict(ModelFit1 , Testing)
+ResultSet2 <- predict(ModelFit2 , Testing)
+
+```
+
+Evaluating the Confusion Matrix for the two Models to compare the estimated Out of Sample error rates 
+
+```{r}
+confusionMatrix(Testing$class , ResultSet1)
+confusionMatrix(Testing$class , ResultSet2)
+```
+
+
+On comapring the confusion Matrix for both the Model Fit , we observe that the Random Forest provides a better prediction estimates and lower out of sample error rates as compared to Boosting . Hence , implementing the Random Forest Model to our validation dataset ( ModelFit1 )
+
+Now , as we have finalized our Model , importing the data for Validation 
+
+```{r}
+Validation <- read.csv("./pml-testing.csv")
+ValResult <- predict(ModelFit1 , Validation)
+```
+
+Submitted the valdiation results in the necessary format.
+
+
