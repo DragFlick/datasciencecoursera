@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Datasciencecoursera : ">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Datasciencecoursera</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/DragFlick/datasciencecoursera">View on GitHub</a>
+
+          <h1 id="project_title">Datasciencecoursera</h1>
+          <h2 id="project_tagline"></h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/DragFlick/datasciencecoursera/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/DragFlick/datasciencecoursera/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>&lt;!DOCTYPE html&gt;</p>
+
+<p></p>
+
+<p></p>
+
+<p>
+
+</p>
+
+<p></p>
+
+<p></p>Practical Machine Learning - Final Project Report
+
+
+
+<p>
+</p>
+
+
+
+
+
+
+
+code{white-space: pre;}
+
+<p></p>
+
+
+
+
+  pre:not([class]) {
+    background-color: white;
+  }
+
+
+
+
+<p></p>
+
+<p></p>
+
+
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+
+
+<div>
+
+
+<div id="header">
+<h1>
+<a id="practical-machine-learning---final-project-report" class="anchor" href="#practical-machine-learning---final-project-report" aria-hidden="true"><span class="octicon octicon-link"></span></a>Practical Machine Learning - Final Project Report</h1>
+<h4>
+<a id="chitresh-pandey" class="anchor" href="#chitresh-pandey" aria-hidden="true"><span class="octicon octicon-link"></span></a><em>Chitresh Pandey</em>
+</h4>
+</div>
+
+<p>The Project Involves analyzing the Data collected in a controlled experient on 6 subjects. The activity involved here is “Unilateral Dumbbell Biceps Curl” . The data was collected for 5 different methods for the activity denoted as ( A , B , C , D ,E) . Out of 5, only A is the correct method .</p>
+
+<p>A - Exactly as per specification</p>
+
+<p>B - Throwing the elbows to the front</p>
+
+<p>C - Lifting the dumbbell only halfway</p>
+
+<p>D - Lowering the dumbbell only halfway</p>
+
+<p>E - Throwing the hips to the front</p>
+
+<p>Now, here we can pose 2 questions</p>
+
+<p>Q1 . Can we classify that a person is doing the “Unilateral Dumbbell Biceps Curl” correctly or incorrectly through a given dataset of specific measurements ?</p>
+
+<p>Q2 . If the person is classified as doing the “Unilateral Dumbbell Biceps Curl” incorrectly , can we further classify him/her into B,C,D or E ?</p>
+
+<p>The data for analysis is provided for by</p>
+
+<p>Ugulino, W.; Cardador, D.; Vega, K.; Velloso, E.; Milidiu, R.; Fuks, H. Wearable Computing: Accelerometers’ Data Classification of Body Postures and Movements. Proceedings of 21st Brazilian Symposium on Artificial Intelligence. Advances in Artificial Intelligence - SBIA 2012. In: Lecture Notes in Computer Science. , pp. 52-61. Curitiba, PR: Springer Berlin / Heidelberg, 2012. ISBN 978-3-642-34458-9. DOI: 10.1007/978-3-642-34459-6_6.</p>
+
+<p>Loading the necessary libraries and the analysis data . Once the Experiment data is loaded dividing the data into Training and Testing samples .</p>
+
+<p>Loading the Experiment data and slicing it into Testing and Training Sets</p>
+
+<pre><code>ExpData &lt;- read.csv("./pml-training.csv") 
+set.seed(4868086)
+inTrain &lt;- createDataPartition( y = ExpData$classe , p = 0.7 , list = FALSE)
+Training &lt;- ExpData[inTrain , ]
+Testing &lt;- ExpData[-inTrain , ]
+rm("inTrain")</code></pre>
+
+<p>Now creating a Transform function to manage the tranformations that the Training and Testing data may have to undergo.</p>
+
+<p>Once we have the Transformed Training and Testing data , identifying the near zero covariates for both Training data and removing them from both Training and Testing dataset.</p>
+
+<pre><code>Training &lt;- Transform(Training)
+Testing  &lt;- Transform(Testing)
+
+# Identifying the Near Zero CoVariates in Training set and removing them from both Training and Testing data
+
+NZV &lt;- nearZeroVar(Training , saveMetrics=TRUE)
+Training &lt;- Training[ ,!NZV$nzv]
+Testing  &lt;- Testing[  ,!NZV$nzv]</code></pre>
+
+<p>Now , preparing my model on the training data .</p>
+
+<pre><code>ModelFit1 &lt;- update(ModelFit , data = Training) # Random Forest </code></pre>
+
+<pre><code>ModelFit2 &lt;- update(ModelFit ,method  = "gbm",data = Training,verbose = FALSE) # Boosting</code></pre>
+
+<p>Following are the statistics for both the Model Fits .</p>
+
+<pre><code>print(ModelFit1) # Random Forest </code></pre>
+
+<pre><code>## 
+## Call:
+##  randomForest(formula = class ~ ., data = Training) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 7
+## 
+##         OOB estimate of  error rate: 0.25%
+## Confusion matrix:
+##      A    B    C    D    E  class.error
+## A 3905    0    0    0    1 0.0002560164
+## B    6 2649    3    0    0 0.0033860045
+## C    0    5 2391    0    0 0.0020868114
+## D    0    0   14 2235    3 0.0075488455
+## E    0    0    0    2 2523 0.0007920792</code></pre>
+
+<pre><code>print(ModelFit2) # Boosting </code></pre>
+
+<pre><code>## Stochastic Gradient Boosting 
+## 
+## 1000 samples
+##   53 predictor
+##    5 classes: 'A', 'B', 'C', 'D', 'E' 
+## 
+## No pre-processing
+## Resampling: Bootstrapped (25 reps) 
+## 
+## Summary of sample sizes: 1000, 1000, 1000, 1000, 1000, 1000, ... 
+## 
+## Resampling results across tuning parameters:
+## 
+##   interaction.depth  n.trees  Accuracy   Kappa      Accuracy SD
+##   1                   50      0.7051253  0.6259041  0.02964519 
+##   1                  100      0.7611809  0.6975828  0.02374762 
+##   1                  150      0.7905237  0.7348195  0.01845057 
+##   2                   50      0.7923912  0.7370063  0.02181351 
+##   2                  100      0.8408204  0.7985020  0.01457378 
+##   2                  150      0.8599204  0.8226528  0.01647126 
+##   3                   50      0.8315520  0.7867569  0.01829320 
+##   3                  100      0.8656772  0.8299641  0.01570775 
+##   3                  150      0.8756687  0.8426158  0.01471798 
+##   Kappa SD  
+##   0.03757160
+##   0.03014136
+##   0.02338426
+##   0.02753128
+##   0.01828226
+##   0.02052475
+##   0.02303353
+##   0.01984513
+##   0.01850295
+## 
+## Tuning parameter 'shrinkage' was held constant at a value of 0.1
+## Accuracy was used to select the optimal model using  the largest value.
+## The final values used for the model were n.trees = 150,
+##  interaction.depth = 3 and shrinkage = 0.1.</code></pre>
+
+<p>Now predicting the output for the Testing data sets from the Models</p>
+
+<pre><code>ResultSet1 &lt;- predict(ModelFit1 , Testing)
+ResultSet2 &lt;- predict(ModelFit2 , Testing)</code></pre>
+
+<p>Evaluating the Confusion Matrix for the two Models to compare the estimated Out of Sample error rates</p>
+
+<pre><code>confusionMatrix(Testing$class , ResultSet1)</code></pre>
+
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 1674    0    0    0    0
+##          B    1 1136    2    0    0
+##          C    0    3 1023    0    0
+##          D    0    0    9  955    0
+##          E    0    0    0    3 1079
+## 
+## Overall Statistics
+##                                           
+##                Accuracy : 0.9969          
+##                  95% CI : (0.9952, 0.9982)
+##     No Information Rate : 0.2846          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9961          
+##  Mcnemar's Test P-Value : NA              
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            0.9994   0.9974   0.9894   0.9969   1.0000
+## Specificity            1.0000   0.9994   0.9994   0.9982   0.9994
+## Pos Pred Value         1.0000   0.9974   0.9971   0.9907   0.9972
+## Neg Pred Value         0.9998   0.9994   0.9977   0.9994   1.0000
+## Prevalence             0.2846   0.1935   0.1757   0.1628   0.1833
+## Detection Rate         0.2845   0.1930   0.1738   0.1623   0.1833
+## Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
+## Balanced Accuracy      0.9997   0.9984   0.9944   0.9975   0.9997</code></pre>
+
+<pre><code>confusionMatrix(Testing$class , ResultSet2)</code></pre>
+
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 1651   12    4    5    2
+##          B   81 1014   37    4    3
+##          C    1   52  954   19    0
+##          D    3   14   57  871   19
+##          E    2   42    9   42  987
+## 
+## Overall Statistics
+##                                          
+##                Accuracy : 0.9307         
+##                  95% CI : (0.9239, 0.937)
+##     No Information Rate : 0.2953         
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
+##                                          
+##                   Kappa : 0.9122         
+##  Mcnemar's Test P-Value : &lt; 2.2e-16      
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            0.9499   0.8942   0.8992   0.9256   0.9763
+## Specificity            0.9945   0.9737   0.9851   0.9812   0.9805
+## Pos Pred Value         0.9863   0.8903   0.9298   0.9035   0.9122
+## Neg Pred Value         0.9793   0.9747   0.9780   0.9858   0.9950
+## Prevalence             0.2953   0.1927   0.1803   0.1599   0.1718
+## Detection Rate         0.2805   0.1723   0.1621   0.1480   0.1677
+## Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
+## Balanced Accuracy      0.9722   0.9339   0.9421   0.9534   0.9784</code></pre>
+
+<p>On comapring the confusion Matrix for both the Model Fit , we observe that the Random Forest provides a better prediction estimates and lower out of sample error rates as compared to Boosting . Hence , implementing the Random Forest Model to our validation dataset ( ModelFit1 )</p>
+
+<p>Now , as we have finalized our Model , importing the data for Validation</p>
+
+<pre><code>Validation &lt;- read.csv("./pml-testing.csv")
+ValResult &lt;- predict(ModelFit1 , Validation)</code></pre>
+
+<p>Submitted the results of Validation data set .</p>
+
+<p></p>
+</div>
+
+
+
+
+
+
+
+<p>
+</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Datasciencecoursera maintained by <a href="https://github.com/DragFlick">DragFlick</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
