@@ -50,7 +50,7 @@
 
 <p>Now, here we can pose 2 questions</p>
 
-<p>Q1 . Can we classify that a person is doing the “Unilateral Dumbbell Biceps Curl” correctly or incorrectly through a given dataset of specific measurements ?</p>
+<p>Q1 . Can we classify that a person is doing the “Unilateral DumbBell Biceps Curl” correctly or incorrectly through a given dataset of specific measurements ?</p>
 
 <p>Q2 . If the person is classified as doing the “Unilateral Dumbbell Biceps Curl” incorrectly , can we further classify him/her into B,C,D or E ?</p>
 
@@ -93,15 +93,62 @@ NZV &lt;- nearZeroVar(Training , saveMetrics=TRUE)
 Training &lt;- Training[ ,!NZV$nzv]
 Testing  &lt;- Testing[  ,!NZV$nzv]</code></pre>
 
-<p>Now , preparing my model on the training data .</p>
+<p>Calculating a CoVariance matrix to identify the Correlated Covariates</p>
 
-<pre><code>ModelFit1 &lt;- update(ModelFit , data = Training) # Random Forest </code></pre>
+<p>Looking at the Co-Relation Matrix we obzerve a high degree of Co-Relation between multiple CoVariates . We go ahead with Principal Componet Analyis (PCA) to reduce the number of Covariates . We go ahead with 2 models within PCA .First Model comprises of 30 PCA out of 54 ( which explains around 98.29% Variablility within the model) and the second model with 40 PCA’s out of 54 ( which explain around 99.8% of the variability)</p>
 
-<pre><code>ModelFit2 &lt;- update(ModelFit ,method  = "gbm",data = Training,verbose = FALSE) # Boosting</code></pre>
+<p>Model 1 (ModelFit1.PCA30 ) - Applying Random Forest Algorithm to the first 30 Principal Components</p>
 
-<p>Following are the statistics for both the Model Fits .</p>
+<pre><code>##    user  system elapsed 
+##   28.01    0.25   28.36</code></pre>
 
-<pre><code>print(ModelFit1) # Random Forest </code></pre>
+<p>Following are the specifics of the Model with 30 PC</p>
+
+<pre><code>## 
+## Call:
+##  randomForest(formula = Training$class ~ ., data = pcompTraining) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 5
+## 
+##         OOB estimate of  error rate: 2.05%
+## Confusion matrix:
+##      A    B    C    D    E class.error
+## A 3880   12    6    5    3 0.006656426
+## B   38 2588   25    3    4 0.026335591
+## C    6   26 2344   20    0 0.021702838
+## D    3    0   95 2147    7 0.046625222
+## E    1    5   10   13 2496 0.011485149</code></pre>
+
+<p>Model 2 (ModelFit2.PCA40 ) - Applying Random Forest Algorithm to the first 40 Principal Components</p>
+
+<pre><code>##    user  system elapsed 
+##   34.78    0.16   35.05</code></pre>
+
+<p>Following are the specifics of the Model with 40 PC</p>
+
+<pre><code>## 
+## Call:
+##  randomForest(formula = Training$class ~ ., data = pcompTraining) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 6
+## 
+##         OOB estimate of  error rate: 1.86%
+## Confusion matrix:
+##      A    B    C    D    E class.error
+## A 3896    5    3    1    1 0.002560164
+## B   50 2578   24    2    4 0.030097818
+## C    5   22 2347   21    1 0.020450751
+## D    3    1   79 2162    7 0.039964476
+## E    0    8    8   11 2498 0.010693069</code></pre>
+
+<p>Model 3 (ModelFit3.RF) - Applying Random Forest Algorithm to the data without any PreProcessing</p>
+
+<pre><code>##    user  system elapsed 
+##   36.90    0.10   37.03</code></pre>
+
+<p>Following are the specifics of the Model with no data preprocessing</p>
 
 <pre><code>## 
 ## Call:
@@ -110,139 +157,140 @@ Testing  &lt;- Testing[  ,!NZV$nzv]</code></pre>
 ##                      Number of trees: 500
 ## No. of variables tried at each split: 7
 ## 
-##         OOB estimate of  error rate: 0.25%
+##         OOB estimate of  error rate: 0.27%
 ## Confusion matrix:
 ##      A    B    C    D    E  class.error
 ## A 3905    0    0    0    1 0.0002560164
 ## B    6 2649    3    0    0 0.0033860045
-## C    0    5 2391    0    0 0.0020868114
-## D    0    0   14 2235    3 0.0075488455
-## E    0    0    0    2 2523 0.0007920792</code></pre>
+## C    0    6 2390    0    0 0.0025041736
+## D    0    0   13 2236    3 0.0071047957
+## E    0    0    0    5 2520 0.0019801980</code></pre>
 
-<pre><code>print(ModelFit2) # Boosting </code></pre>
+<p>Now Preparing the Principal Componets for the Testing Datasets</p>
 
-<pre><code>## Stochastic Gradient Boosting 
-## 
-## 1000 samples
-##   53 predictor
-##    5 classes: 'A', 'B', 'C', 'D', 'E' 
-## 
-## No pre-processing
-## Resampling: Bootstrapped (25 reps) 
-## 
-## Summary of sample sizes: 1000, 1000, 1000, 1000, 1000, 1000, ... 
-## 
-## Resampling results across tuning parameters:
-## 
-##   interaction.depth  n.trees  Accuracy   Kappa      Accuracy SD
-##   1                   50      0.7051253  0.6259041  0.02964519 
-##   1                  100      0.7611809  0.6975828  0.02374762 
-##   1                  150      0.7905237  0.7348195  0.01845057 
-##   2                   50      0.7923912  0.7370063  0.02181351 
-##   2                  100      0.8408204  0.7985020  0.01457378 
-##   2                  150      0.8599204  0.8226528  0.01647126 
-##   3                   50      0.8315520  0.7867569  0.01829320 
-##   3                  100      0.8656772  0.8299641  0.01570775 
-##   3                  150      0.8756687  0.8426158  0.01471798 
-##   Kappa SD  
-##   0.03757160
-##   0.03014136
-##   0.02338426
-##   0.02753128
-##   0.01828226
-##   0.02052475
-##   0.02303353
-##   0.01984513
-##   0.01850295
-## 
-## Tuning parameter 'shrinkage' was held constant at a value of 0.1
-## Accuracy was used to select the optimal model using  the largest value.
-## The final values used for the model were n.trees = 150,
-##  interaction.depth = 3 and shrinkage = 0.1.</code></pre>
+<p>Now , Applying the testing datasets to the respective Models to Predict the Outcome</p>
 
-<p>Now predicting the output for the Testing data sets from the Models</p>
+<p>Now Evaluating the confusion matrix for all the 3 model Fit .</p>
 
-<pre><code>ResultSet1 &lt;- predict(ModelFit1 , Testing)
-ResultSet2 &lt;- predict(ModelFit2 , Testing)</code></pre>
+<pre><code>confMat.PCA30 # Confusion Matrix for Model with 30 PCA</code></pre>
 
-<p>Evaluating the Confusion Matrix for the two Models to compare the estimated Out of Sample error rates</p>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 1666    2    3    3    0
+##          B   19 1105   14    0    1
+##          C    0   12 1008    5    1
+##          D    0    1   45  917    1
+##          E    0    4    3    5 1070
+## 
+## Overall Statistics
+##                                           
+##                Accuracy : 0.9798          
+##                  95% CI : (0.9759, 0.9832)
+##     No Information Rate : 0.2863          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9744          
+##  Mcnemar's Test P-Value : NA              
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            0.9887   0.9831   0.9394   0.9860   0.9972
+## Specificity            0.9981   0.9929   0.9963   0.9905   0.9975
+## Pos Pred Value         0.9952   0.9701   0.9825   0.9512   0.9889
+## Neg Pred Value         0.9955   0.9960   0.9866   0.9974   0.9994
+## Prevalence             0.2863   0.1910   0.1823   0.1580   0.1823
+## Detection Rate         0.2831   0.1878   0.1713   0.1558   0.1818
+## Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
+## Balanced Accuracy      0.9934   0.9880   0.9678   0.9883   0.9974</code></pre>
 
-<pre><code>confusionMatrix(Testing$class , ResultSet1)</code></pre>
+<pre><code>confMat.PCA40 # Confusion Matrix for Model with 40 PCA</code></pre>
+
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 1671    1    1    1    0
+##          B   19 1107   13    0    0
+##          C    2   10 1008    5    1
+##          D    0    0   38  924    2
+##          E    0    7    3    3 1069
+## 
+## Overall Statistics
+##                                           
+##                Accuracy : 0.982           
+##                  95% CI : (0.9783, 0.9852)
+##     No Information Rate : 0.2875          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9772          
+##  Mcnemar's Test P-Value : NA              
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            0.9876   0.9840   0.9483   0.9904   0.9972
+## Specificity            0.9993   0.9933   0.9963   0.9919   0.9973
+## Pos Pred Value         0.9982   0.9719   0.9825   0.9585   0.9880
+## Neg Pred Value         0.9950   0.9962   0.9887   0.9982   0.9994
+## Prevalence             0.2875   0.1912   0.1806   0.1585   0.1822
+## Detection Rate         0.2839   0.1881   0.1713   0.1570   0.1816
+## Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
+## Balanced Accuracy      0.9934   0.9886   0.9723   0.9911   0.9973</code></pre>
+
+<pre><code>confMat.RF  # Confusion Matrix for Model with no data preprocessing </code></pre>
 
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
 ##          A 1674    0    0    0    0
-##          B    1 1136    2    0    0
-##          C    0    3 1023    0    0
+##          B    1 1137    1    0    0
+##          C    0    5 1021    0    0
 ##          D    0    0    9  955    0
 ##          E    0    0    0    3 1079
 ## 
 ## Overall Statistics
-##                                           
-##                Accuracy : 0.9969          
-##                  95% CI : (0.9952, 0.9982)
-##     No Information Rate : 0.2846          
-##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
-##                                           
-##                   Kappa : 0.9961          
-##  Mcnemar's Test P-Value : NA              
-## 
-## Statistics by Class:
-## 
-##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.9994   0.9974   0.9894   0.9969   1.0000
-## Specificity            1.0000   0.9994   0.9994   0.9982   0.9994
-## Pos Pred Value         1.0000   0.9974   0.9971   0.9907   0.9972
-## Neg Pred Value         0.9998   0.9994   0.9977   0.9994   1.0000
-## Prevalence             0.2846   0.1935   0.1757   0.1628   0.1833
-## Detection Rate         0.2845   0.1930   0.1738   0.1623   0.1833
-## Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
-## Balanced Accuracy      0.9997   0.9984   0.9944   0.9975   0.9997</code></pre>
-
-<pre><code>confusionMatrix(Testing$class , ResultSet2)</code></pre>
-
-<pre><code>## Confusion Matrix and Statistics
-## 
-##           Reference
-## Prediction    A    B    C    D    E
-##          A 1651   12    4    5    2
-##          B   81 1014   37    4    3
-##          C    1   52  954   19    0
-##          D    3   14   57  871   19
-##          E    2   42    9   42  987
-## 
-## Overall Statistics
 ##                                          
-##                Accuracy : 0.9307         
-##                  95% CI : (0.9239, 0.937)
-##     No Information Rate : 0.2953         
+##                Accuracy : 0.9968         
+##                  95% CI : (0.995, 0.9981)
+##     No Information Rate : 0.2846         
 ##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
 ##                                          
-##                   Kappa : 0.9122         
-##  Mcnemar's Test P-Value : &lt; 2.2e-16      
+##                   Kappa : 0.9959         
+##  Mcnemar's Test P-Value : NA             
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.9499   0.8942   0.8992   0.9256   0.9763
-## Specificity            0.9945   0.9737   0.9851   0.9812   0.9805
-## Pos Pred Value         0.9863   0.8903   0.9298   0.9035   0.9122
-## Neg Pred Value         0.9793   0.9747   0.9780   0.9858   0.9950
-## Prevalence             0.2953   0.1927   0.1803   0.1599   0.1718
-## Detection Rate         0.2805   0.1723   0.1621   0.1480   0.1677
+## Sensitivity            0.9994   0.9956   0.9903   0.9969   1.0000
+## Specificity            1.0000   0.9996   0.9990   0.9982   0.9994
+## Pos Pred Value         1.0000   0.9982   0.9951   0.9907   0.9972
+## Neg Pred Value         0.9998   0.9989   0.9979   0.9994   1.0000
+## Prevalence             0.2846   0.1941   0.1752   0.1628   0.1833
+## Detection Rate         0.2845   0.1932   0.1735   0.1623   0.1833
 ## Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
-## Balanced Accuracy      0.9722   0.9339   0.9421   0.9534   0.9784</code></pre>
+## Balanced Accuracy      0.9997   0.9976   0.9946   0.9975   0.9997</code></pre>
 
-<p>On comapring the confusion Matrix for both the Model Fit , we observe that the Random Forest provides a better prediction estimates and lower out of sample error rates as compared to Boosting . Hence , implementing the Random Forest Model to our validation dataset ( ModelFit1 )</p>
+<p>Consolidating the data for all the 3 models in a single data frame for comparisons</p>
 
-<p>Now , as we have finalized our Model , importing the data for Validation</p>
+<pre><code>##                  Accuracy ElapsedTime
+## ModelFit1.PCA30 0.9797791       28.36
+## ModelFit1.PCA40 0.9819881       35.05
+## ModelFit1.RF    0.9967715       37.03</code></pre>
+
+<p>We see that the PCA model with 30 Principal Componets suffers from an accuracy trade off as compared to Model without any PreProcessing . However , if we look at the execution time we observer that there is a significant execution time gain in PCA30 Model (ModelFit1.PCA30) with respect to the Model without any PreProcessing (ModelFit3.RF).</p>
+
+<p>For the case in discussion here, we will consider the solution that has the maximum Overall Accuracy. We will go ahead with the model with no data preprocessing (ModelFit3.RF).</p>
+
+<p>Now , Importing the Validation data and predicting the results through model ModelFit3.RF</p>
 
 <pre><code>Validation &lt;- read.csv("./pml-testing.csv")
-ValResult &lt;- predict(ModelFit1 , Validation)</code></pre>
+ValResult &lt;- predict(ModelFit3.RF , Validation)</code></pre>
 
-<p>Submitted the results of Validation data set .</p>
+<p>Submitted the Validation result for final evaluation .</p>
 
 <p></p>
 
