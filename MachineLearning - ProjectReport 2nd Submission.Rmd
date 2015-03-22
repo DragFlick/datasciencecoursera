@@ -1,0 +1,229 @@
+---
+title: "Practical Machine Learning - Final Project Report"
+author: "Chitresh Pandey"
+output: html_document
+---
+The Project Involves analyzing the Data collected in a controlled experient on 6 subjects. The activity involved here is "Unilateral Dumbbell Biceps Curl" . The data was collected for 5 different methods for the activity denoted as ( A , B , C , D ,E) . Out of 5, only A is the correct method . 
+
+A - Exactly as per specification
+
+B - Throwing the elbows to the front
+
+C - Lifting the dumbbell only halfway
+
+D - Lowering the dumbbell only halfway
+
+E - Throwing the hips to the front
+
+
+Now, here we can pose 2 questions
+
+Q1 . Can we classify that a person is doing the "Unilateral DumbBell Biceps Curl"  correctly or incorrectly through  a given dataset of specific measurements ? 
+
+Q2 . If the person is classified as doing the "Unilateral Dumbbell Biceps Curl" incorrectly , can we further classify him/her into B,C,D or E ? 
+
+
+The data for analysis is provided for by 
+
+Ugulino, W.; Cardador, D.; Vega, K.; Velloso, E.; Milidiu, R.; Fuks, H. Wearable Computing: Accelerometers' Data Classification of Body Postures and Movements. Proceedings of 21st Brazilian Symposium on Artificial Intelligence. Advances in Artificial Intelligence - SBIA 2012. In: Lecture Notes in Computer Science. , pp. 52-61. Curitiba, PR: Springer Berlin / Heidelberg, 2012. ISBN 978-3-642-34458-9. DOI: 10.1007/978-3-642-34459-6_6. 
+
+
+Loading the necessary libraries and the analysis data . Once the Experiment data is loaded dividing the data into Training and Testing samples . 
+
+```{r,echo=FALSE}
+setwd("C:/CHITRESH - DUMPS/COURSEERA - DATA SCIENTIST TOOLBOX/MACHINE LEARNING")
+```
+
+
+```{r,echo=FALSE,message=FALSE}
+# Loading necessary libraries
+library(ggplot2)
+library(caret)
+library(randomForest)
+library(mboost)
+library(splines)
+```
+
+Loading the Experiment data and slicing it into Testing and Training Sets
+```{r}
+ 
+ExpData <- read.csv("./pml-training.csv") 
+set.seed(4868086)
+inTrain <- createDataPartition( y = ExpData$classe , p = 0.7 , list = FALSE)
+Training <- ExpData[inTrain , ]
+Testing <- ExpData[-inTrain , ]
+rm("inTrain")
+
+```
+
+Now creating a Transform function to manage the tranformations that the Training and Testing data may have to undergo. 
+
+```{r}
+
+Transform <- function(DataSet)
+        {
+                DataSet[is.na(DataSet)] <- 0
+                s_data <- subset(DataSet , 
+                                 select = -c(X,user_name,raw_timestamp_part_1,raw_timestamp_part_2,cvtd_timestamp))
+                class <- s_data$classe
+                s_data <- subset(s_data , select = -classe)
+                data <- cbind(class , s_data)
+                return(data)
+        }
+```
+
+Once we have the Transformed Training and Testing data , identifying the near zero covariates for both Training data and removing them from both Training and Testing dataset.
+
+
+```{r}
+Training <- Transform(Training)
+Testing  <- Transform(Testing)
+
+# Identifying the Near Zero CoVariates in Training set and removing them from both Training and Testing data
+
+NZV <- nearZeroVar(Training , saveMetrics=TRUE)
+Training <- Training[ ,!NZV$nzv]
+Testing  <- Testing[  ,!NZV$nzv]
+```
+
+
+Calculating a CoVariance matrix to identify the Correlated Covariates 
+
+
+```{r , echo=FALSE,message=FALSE}
+
+corMat <- abs(cor(Training[ ,-1]))
+diag(corMat) <- 0
+correlatedCov <- which(corMat > 0 , arr.ind = TRUE)
+
+```
+
+Looking at the Co-Relation Matrix we obzerve a high degree of Co-Relation between multiple CoVariates . We go ahead with Principal Componet Analyis (PCA) to reduce the number of Covariates .
+We go ahead with 2 models within PCA .First Model comprises of 30 PCA out of 54 ( which explains around 98.29% Variablility within the model) and the second model with 40 PCA's out of 54 ( which explain around 99.8% of the variability)
+
+
+Model 1 (ModelFit1.PCA30 ) - Applying Random Forest Algorithm to the first 30 Principal Components 
+
+```{r , echo=FALSE , message=FALSE}
+
+T1 <- system.time(preProc.PCA30 <- preProcess( Training[ ,-1] , method = c("center" , "scale" , "pca") , pcaComp = 30 ))
+T1 <- T1 + system.time( pcompTraining <- predict( preProc.PCA30 , Training[ ,-1]))
+T1 <- T1 + system.time(ModelFit1.PCA30 <- randomForest(Training$class ~ . , data = pcompTraining))
+T1 # Time Taken for Evaluting the Model with 30 Principal Components 
+
+```
+
+Following are the specifics of the Model with 30 PC
+
+```{r,echo=FALSE}
+ModelFit1.PCA30
+```
+
+
+Model 2 (ModelFit2.PCA40 ) - Applying Random Forest Algorithm to the first 40 Principal Components 
+
+
+```{r , echo=FALSE,message=FALSE}
+
+T2 <- system.time(preProc.PCA40 <- preProcess( Training[ ,-1] , method = c("center" , "scale" , "pca") , pcaComp = 40 ))
+T2 <- T2 + system.time( pcompTraining <- predict( preProc.PCA40 , Training[ ,-1]))
+T2 <- T2 + system.time(ModelFit2.PCA40 <- randomForest(Training$class ~ . , data = pcompTraining))
+T2 #   Time Taken for Evaluting the Model with 40 Principal Components  
+
+```
+
+Following are the specifics of the Model with 40 PC
+
+```{r,echo=FALSE}
+ModelFit2.PCA40
+```
+
+
+Model 3 (ModelFit3.RF) - Applying Random Forest Algorithm to the data without any PreProcessing 
+
+```{r,echo=FALSE,message=FALSE}
+
+T3 <- system.time(ModelFit3.RF <- randomForest( class ~ . , data = Training))
+T3 # Time taken to evaluate the model with no data Preprocessing 
+```
+
+
+
+Following are the specifics of the Model with no data preprocessing 
+
+```{r,echo=FALSE}
+ModelFit3.RF
+```
+
+
+
+Now Preparing the Principal Componets for the Testing Datasets 
+
+```{r,echo=FALSE,message=FALSE}
+
+pcompTesting.PCA30 <- predict( preProc.PCA30 , Testing[ , -1])
+pcompTesting.PCA40 <- predict( preProc.PCA40 , Testing[ , -1])
+
+```
+
+Now , Applying the testing datasets to the respective Models to Predict the Outcome 
+
+```{r,echo=FALSE,message =FALSE}
+resPCA30 <- predict(ModelFit1.PCA30 , pcompTesting.PCA30 )
+resPCA40 <- predict(ModelFit2.PCA40 , pcompTesting.PCA40 )
+resRF <- predict(ModelFit3.RF , Testing )
+```
+
+
+Now Evaluating the confusion matrix for all the 3 model Fit .
+
+```{r,echo=FALSE}
+
+confMat.PCA30 <- confusionMatrix( Testing$class , resPCA30) 
+confMat.PCA40 <- confusionMatrix( Testing$class , resPCA40)
+confMat.RF <- confusionMatrix( Testing$class , resRF)
+```
+
+```{r}
+confMat.PCA30 # Confusion Matrix for Model with 30 PCA
+```
+
+```{r}
+confMat.PCA40 # Confusion Matrix for Model with 40 PCA
+```
+
+```{r}
+confMat.RF  # Confusion Matrix for Model with no data preprocessing 
+```
+
+
+Consolidating the data for all the 3 models in a single data frame for comparisons 
+
+
+```{r,echo=FALSE,message=FALSE}
+
+FinalResSet <- data.frame( Accuracy = c( confMat.PCA30$overall[["Accuracy"]], 
+                                         confMat.PCA40$overall[["Accuracy"]],  
+                                         confMat.RF$overall[["Accuracy"]]) , ElapsedTime = c(T1[["elapsed"]] , T2[["elapsed"]] , T3[["elapsed"]]))
+rownames(FinalResSet) <- c("ModelFit1.PCA30" ,"ModelFit1.PCA40","ModelFit1.RF") 
+
+FinalResSet
+
+```
+
+We see that the PCA model with 30 Principal Componets suffers from an accuracy trade off as compared to Model without any PreProcessing  . However , if we look at the execution time we observer that there is a significant execution time gain in  PCA30 Model (ModelFit1.PCA30) with respect to the Model without any PreProcessing (ModelFit3.RF).
+
+For the case in discussion here,  we will consider the solution that has the maximum Overall Accuracy. We will go ahead with the model with no data preprocessing (ModelFit3.RF).
+
+
+Now , Importing the Validation data and predicting the results through model ModelFit3.RF
+
+```{r , echo=TRUE}
+
+Validation <- read.csv("./pml-testing.csv")
+ValResult <- predict(ModelFit3.RF , Validation)
+
+```
+
+Submitted the Validation result for final evaluation .
+
